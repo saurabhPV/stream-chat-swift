@@ -27,7 +27,7 @@ public struct Message: Codable {
         case replyCount = "reply_count"
         case latestReactions = "latest_reactions"
         case ownReactions = "own_reactions"
-        case reactionCounts = "reaction_counts"
+        case reactionCounts = "reaction_scores"
     }
     
     /// A message id.
@@ -201,11 +201,11 @@ public struct Message: Codable {
         showReplyInChannel = try container.decodeIfPresent(Bool.self, forKey: .showReplyInChannel) ?? false
         mentionedUsers = try container.decode([User].self, forKey: .mentionedUsers)
         replyCount = try container.decode(Int.self, forKey: .replyCount)
-        latestReactions = try container.decode([Reaction].self, forKey: .latestReactions)
-        ownReactions = try container.decode([Reaction].self, forKey: .ownReactions)
+        latestReactions = (try? container.decode([Reaction].self, forKey: .latestReactions)) ?? []
+        ownReactions = (try? container.decode([Reaction].self, forKey: .ownReactions)) ?? []
         extraData = ExtraData(ExtraData.decodableTypes.first(where: { $0.isMessage })?.decode(from: decoder))
         
-        if let reactionCounts = try container.decodeIfPresent(ReactionCounts.self, forKey: .reactionCounts),
+        if let reactionCounts = try? container.decodeIfPresent(ReactionCounts.self, forKey: .reactionCounts),
             !reactionCounts.counts.isEmpty {
             self.reactionCounts = reactionCounts
         } else {
